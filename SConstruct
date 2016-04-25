@@ -8,6 +8,9 @@ base_env = Environment(
     INSTALL_ROOT = '$BUILD_ROOT/bin',
     INSTALL_DIR = '$INSTALL_ROOT/$OS/$MODE',
 
+    CCFLAGS = [
+        '-std=c++11',
+    ],
     LIBPATH = [
         '$INSTALL_DIR',
     ],
