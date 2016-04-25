@@ -7,6 +7,10 @@ base_env = Environment(
     BUILD_DIR = '$BUILD_ROOT/$OS/$MODE',
     INSTALL_ROOT = '$BUILD_ROOT/bin',
     INSTALL_DIR = '$INSTALL_ROOT/$OS/$MODE',
+
+    LIBPATH = [
+        '$INSTALL_DIR',
+    ],
 )
 
 # Build debug and release environments
