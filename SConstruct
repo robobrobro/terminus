@@ -71,6 +71,12 @@ if platform in PLATFORMS['linux']:
         # Create Windows build environment
         win_env = build_env.Clone(
             OS = 'windows',
+            MINGW_PREFIX = 'x86_64-w64-mingw32-',
+            CC = '${MINGW_PREFIX}gcc',
+            CXX = '${MINGW_PREFIX}g++',
+            LD = '${MINGW_PREFIX}ld',
+            AR = '${MINGW_PREFIX}ar',
+            PROGSUFFIX = '.exe',
         )
         # Add Windows build environment to build environment list
         build_envs.append(win_env)
