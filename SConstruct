@@ -32,9 +32,6 @@ base_envs = [
     rel_env,
 ]
 
-# Initialize environments in which to build
-build_envs = copy.copy(base_envs)
-
 # Get platform of the build system
 platform = ARGUMENTS.get('platform', platform.system()).lower()
 
@@ -45,6 +42,8 @@ PLATFORMS = {
 }
 
 # Create and add new build environments based on the build system's platform
+build_envs = []
+
 # Linux systems cross-compile for Windows as well as native-compile for Linux
 # Mac (Darwin) systems native-compile for Darwin
 if platform in PLATFORMS['linux']:
