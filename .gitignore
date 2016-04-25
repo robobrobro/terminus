@@ -30,5 +30,8 @@
 # SCons database
 .sconsign.dblite
 
+# SCons build directory
+/build
+
 # Swap files
 *.swp
