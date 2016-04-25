@@ -60,14 +60,23 @@ build_envs = []
 if platform in PLATFORMS['linux']:
     # Create build environment for every base build environment
     for env in base_envs:
+        # Create new base environment for Linux build systems
+        build_env = env.Clone()
+        build_env.Append(
+            LINKFLAGS = [
+                '-static',
+            ],
+        )
+            
         # Create Windows build environment
-        win_env = env.Clone(OS = 'windows')
-        # TODO add Windows-specific settings
+        win_env = build_env.Clone(
+            OS = 'windows',
+        )
         # Add Windows build environment to build environment list
         build_envs.append(win_env)
 
         # Create Linux build environment
-        lnx_env = env.Clone(OS = platform)
+        lnx_env = build_env.Clone(OS = platform)
         # TODO add Linux-specific settings
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
