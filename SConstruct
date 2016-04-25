@@ -36,12 +36,18 @@ base_envs = [
 build_envs = copy.copy(base_envs)
 
 # Get platform of the build system
-platform = platform.system().lower()
+platform = ARGUMENTS.get('platform', platform.system()).lower()
+
+# Platform map
+PLATFORMS = {
+    'linux': ['linux', 'lnx'],
+    'mac': ['mac', 'darwin', 'osx'],
+}
 
 # Create and add new build environments based on the build system's platform
 # Linux systems cross-compile for Windows as well as native-compile for Linux
 # Mac (Darwin) systems native-compile for Darwin
-if platform == 'linux':
+if platform in PLATFORMS['linux']:
     # Create build environment for every base build environment
     for env in base_envs:
         # Create Windows build environment
@@ -55,16 +61,18 @@ if platform == 'linux':
         # TODO add Linux-specific settings
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
-elif platform is 'darwin':
+elif platform in PLATFORMS['mac']:
     # Create build environment for every base build environment
     for env in base_envs:
         # Create Darwin build environment
-        darwin_env = env.Clone(OS = darwin)
+        darwin_env = env.Clone(OS = platform)
         # TODO add Darwin-specific settings
         # Add Darwin build environment to build environment list
         build_envs.append(darwin_env)
 else:
-    raise StopError('Unknown build system platform: {}'.format(platform))
+    platforms = ', '.join(sorted([p for l in PLATFORMS.itervalues() for p in l]))
+    msg = 'Invalid platform: {} (choices: {}).'.format(platform, platforms)
+    raise StopError(msg)
 
 # Build every subdir that has an SConscript in every build environment
 for subdir in filter(os.path.isdir, os.listdir(Dir('.').srcnode().abspath)):
