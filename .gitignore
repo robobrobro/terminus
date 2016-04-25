@@ -29,3 +29,6 @@
 
 # SCons database
 .sconsign.dblite
+
+# Swap files
+*.swp
