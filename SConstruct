@@ -2,7 +2,7 @@ from SCons.Errors import StopError
 import copy, os, platform
 
 # Base environment
-env = Environment(
+base_env = Environment(
     BUILD_ROOT = '#build',
     BUILD_DIR = '$BUILD_ROOT/$OS/$MODE',
     INSTALL_ROOT = '$BUILD_ROOT/bin',
@@ -10,16 +10,16 @@ env = Environment(
 )
 
 # Build debug and release environments
-dbg_env = Environment(
-    MODE = 'debug',
+dbg_env = base_env.Clone(MODE = 'debug')
+dbg_env.Append(
     CCFLAGS = [
         '-g',
         '-O0',
     ],
 )
 
-rel_env = Environment(
-    MODE = 'release',
+rel_env = base_env.Clone(MODE = 'release')
+rel_env.Append(
     CCFLAGS = [
         '-O3',
         '-s',
