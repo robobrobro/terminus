@@ -12,7 +12,6 @@ base_env = Environment(
         '-std=c++11',
     ],
     LINKFLAGS = [
-        '-static-libgcc',
         '-static-libstdc++',
     ],
     LIBPATH = [
@@ -65,6 +64,7 @@ if platform in PLATFORMS['linux']:
         build_env.Append(
             LINKFLAGS = [
                 '-static',
+                '-static-libgcc',
             ],
         )
             
