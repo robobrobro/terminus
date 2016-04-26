@@ -36,8 +36,56 @@ _resource_serializer = Builder(
     suffix = '.res',
 )
 
+def _write_res_asm_in_file(target, source, env):
+    with open(target[0].abspath, 'wb') as f:
+        f.write(env['__RES_ASM_IN'])
+
+def build_resource_blob(env, source, name='terminus_resources'):
+    # Concatenate resources inton a single blob
+    blob = env.Command(
+        target = name + '.blob',
+        source = source,
+        action = 'cat $SOURCES > ${TARGET}',
+    )
+
+    # Generate pre-substitution assembly file
+    resource_asm_in_text = """
+        .section    .rodata
+        .global     @name@
+        .type       @name@, @object
+        .align      4
+    @name@:
+        .incbin     "@path@"
+        .global     @name@_size
+        .type       @name@_size, @object
+        .align      4
+    @name@_size:
+        .quad       @name@_size - @name@
+    """
+    env['__RES_ASM_IN'] = resource_asm_in_text
+    resource_asm_in = env.Command(
+        target = 'resource.s.in',
+        source = source,
+        action = _write_res_asm_in_file,
+    )
+
+    # Perform substitution on pre-substitution assembly file
+    env.Tool('textfile')
+    subst_dict = {
+        '@name@': name,
+        '@path@': blob[0].abspath,
+    }
+    asm_file = env.Substfile(resource_asm_in, SUBST_DICT = subst_dict)
+
+    # Compile assembly file, which will incbin the resource blob
+    blob_obj = env.StaticObject(name, asm_file)
+    env.Depends(blob_obj, blob)
+
+    return blob_obj
+
 def generate(env):
     env['BUILDERS']['SerializeResource'] = _resource_serializer
+    env.AddMethod(build_resource_blob, 'BundleResources')
 
 def exists(env):
     return True
