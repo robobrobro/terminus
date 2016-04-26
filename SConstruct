@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 from SCons.Errors import StopError
 import copy, os, platform
 
@@ -14,10 +15,14 @@ base_env = Environment(
     LIBPATH = [
         '$INSTALL_DIR',
     ],
+
+    # Generate a secret key for symmetric encryptino
+    SECRET_KEY = Fernet.generate_key(),
 )
 
 # Add tools to base environment
 base_env.Tool('compactor')
+base_env.Tool('resource_serializer')
 
 # Build debug and release environments
 dbg_env = base_env.Clone(MODE = 'debug')
