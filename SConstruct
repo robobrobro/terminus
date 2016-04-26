@@ -32,6 +32,8 @@ rel_env = base_env.Clone(MODE = 'release')
 rel_env.Append(
     CCFLAGS = [
         '-O3',
+    ],
+    LINKFLAGS = [
         '-s',
     ],
 )
