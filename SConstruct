@@ -11,9 +11,6 @@ base_env = Environment(
     CCFLAGS = [
         '-std=c++11',
     ],
-    LINKFLAGS = [
-        '-static-libstdc++',
-    ],
     LIBPATH = [
         '$INSTALL_DIR',
     ],
@@ -68,6 +65,7 @@ if platform in PLATFORMS['linux']:
             LINKFLAGS = [
                 '-static',
                 '-static-libgcc',
+                '-static-libstdc++',
             ],
         )
             
