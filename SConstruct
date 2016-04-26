@@ -19,6 +19,9 @@ base_env = Environment(
     ],
 )
 
+# Add tools to base environment
+base_env.Tool('compactor')
+
 # Build debug and release environments
 dbg_env = base_env.Clone(MODE = 'debug')
 dbg_env.Append(
