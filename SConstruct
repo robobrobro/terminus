@@ -1,6 +1,5 @@
-from cryptography.fernet import Fernet
 from SCons.Errors import StopError
-import copy, os, platform
+import binascii, copy, os, platform
 
 # Base environment
 base_env = Environment(
@@ -16,8 +15,10 @@ base_env = Environment(
         '$INSTALL_DIR',
     ],
 
-    # Generate a secret key for symmetric encryptino
-    SECRET_KEY = Fernet.generate_key(),
+    SCONSTRUCT = os.path.join(Dir('.').srcnode().abspath, 'SConstruct'),
+
+    # Generate a secret key for symmetric encryption
+    SECRET_KEY = binascii.hexlify(os.urandom(4096)),
 )
 
 # Add tools to base environment

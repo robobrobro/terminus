@@ -1,10 +1,7 @@
-from __future__ import print_function
-from cryptography.fernet import Fernet
 from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Util import is_List
-import os
-import struct
+import os, struct, subprocess
 
 def serialize_resource(target, source, env):
     # Convert source to a list of SCons Files
@@ -20,9 +17,21 @@ def serialize_resource(target, source, env):
     with open(source_path, 'rb') as f:
         data = f.read()
 
-    fern = Fernet(env['SECRET_KEY'])
-    print ('Encrypting with key: {}'.format(env['SECRET_KEY']))
-    encrypted_data = fern.encrypt(data)
+    target_dir = os.path.dirname(target[0].abspath)
+    encrypted_res_file = os.path.join(target_dir, name + '.encrypted')
+    cmd = [
+        'openssl',
+        'enc',
+            '-e',
+            '-aes-256-cbc',
+            '-k', env['SECRET_KEY'],
+            '-in', source_path,
+            '-out', encrypted_res_file,
+    ]
+    subprocess.check_call(cmd)
+
+    with open(encrypted_res_file, 'rb') as f:
+        encrypted_data = f.read()
     size = len(encrypted_data)
 
     # Serialize to target
