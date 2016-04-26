@@ -1,0 +1,23 @@
+import os
+
+Import('env')
+
+env.Append(CPPPATH = Dir('include').srcnode().abspath)
+
+# Generate a secret key file for symmetric encryption
+secret_key_file = env.Command(
+    target = 'secret_key',
+    source = '$SCONSTRUCT',
+    action = 'echo -n $SECRET_KEY > $TARGET',
+)
+
+# Import the secret key as a symbol into the library
+secret_key_obj = env.BundleResources(secret_key_file, name='terminus_secret_key')
+
+source = [
+    secret_key_obj,
+] + env.Glob('src/*.cpp')
+
+terminus = env.StaticLibrary('terminus', source)
+
+Return('terminus')
