@@ -27,5 +27,14 @@
 *.out
 *.app
 
+# SCons database
+.sconsign.dblite
+
+# SCons build directory
+/build
+
 # Swap files
 *.swp
+
+# Python bytecode
+*.pyc
