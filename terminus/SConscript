@@ -8,7 +8,7 @@ env.Append(CPPPATH = Dir('include').srcnode().abspath)
 secret_key_file = env.Command(
     target = 'secret_key',
     source = '$SCONSTRUCT',
-    action = 'echo -n $SECRET_KEY > $TARGET',
+    action = 'printf "%s" $SECRET_KEY > $TARGET',
 )
 
 # Import the secret key as a symbol into the library
