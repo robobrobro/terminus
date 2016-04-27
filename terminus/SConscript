@@ -1,29 +1,8 @@
-from SCons.Action import Action
-from SCons.Builder import Builder
-from SCons.Util import is_List
-import binascii, os
-
 Import('env')
 
 env.Append(CPPPATH = Dir('include').srcnode().abspath)
 
-def write_secret_key_file(target, source, env):
-    secret_key = binascii.unhexlify(env['SECRET_KEY'])
-    with open(target[0].abspath, 'wb') as f:
-        f.write(secret_key)
-
-secret_key_file_writer = Builder(
-    action = Action(write_secret_key_file, 'Writing secret key to file $TARGET'),
-)
-
-# Generate a secret key file for symmetric encryption
-secret_key_file = secret_key_file_writer.__call__(env, source='$SCONSTRUCT', target='secret_key')
-
-# Import the secret key as a symbol into the library
-secret_key_obj = env.BundleResources(secret_key_file, name='terminus_secret_key')
-
 source = [
-    secret_key_obj,
 ] + env.Glob('src/*.cpp')
 
 terminus = env.StaticLibrary('terminus', source)

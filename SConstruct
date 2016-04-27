@@ -39,9 +39,6 @@ base_env = Environment(
 
     # Get path to the SConstruct
     SCONSTRUCT = os.path.join(Dir('.').srcnode().abspath, 'SConstruct'),
-
-    # Generate a secret key for symmetric encryption
-    SECRET_KEY = binascii.hexlify(os.urandom(32)), # 256 bits (for AES-256)
 )
 
 # Add tools to base environment
