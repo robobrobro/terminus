@@ -103,7 +103,6 @@ if platform in PLATFORMS['linux']:
 
         # Create Linux build environment
         lnx_env = build_env.Clone(OS = platform)
-        # TODO add Linux-specific settings
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
 elif platform in PLATFORMS['mac']:
