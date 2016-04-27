@@ -1,6 +1,22 @@
 from SCons.Errors import StopError
 import binascii, copy, os, platform
 
+# Platform map
+PLATFORMS = {
+    'linux': ['linux', 'lnx'],
+    'mac': ['mac', 'darwin', 'osx'],
+}
+
+platforms = sorted([p for l in PLATFORMS.itervalues() for p in l])
+
+# Get platform of the build system
+platform = ARGUMENTS.get('platform', platform.system()).lower()
+
+# Verify platform is known
+if platform not in platforms:
+    msg = 'Invalid platform: {} (choices: {}).'.format(platform, ', '.join(platforms))
+    raise StopError(msg)
+
 # Base environment
 base_env = Environment(
     BUILD_ROOT = '#build',
@@ -14,6 +30,9 @@ base_env = Environment(
     LIBPATH = [
         '$INSTALL_DIR',
     ],
+
+    # Get platform of the build system
+    PLATFORM = [p for p in PLATFORMS if platform in PLATFORMS[p]][0],
 
     SCONSTRUCT = os.path.join(Dir('.').srcnode().abspath, 'SConstruct'),
 
@@ -49,15 +68,6 @@ base_envs = [
     dbg_env,
     rel_env,
 ]
-
-# Get platform of the build system
-platform = ARGUMENTS.get('platform', platform.system()).lower()
-
-# Platform map
-PLATFORMS = {
-    'linux': ['linux', 'lnx'],
-    'mac': ['mac', 'darwin', 'osx'],
-}
 
 # Create and add new build environments based on the build system's platform
 build_envs = []
@@ -103,10 +113,6 @@ elif platform in PLATFORMS['mac']:
         # TODO add Darwin-specific settings
         # Add Darwin build environment to build environment list
         build_envs.append(darwin_env)
-else:
-    platforms = ', '.join(sorted([p for l in PLATFORMS.itervalues() for p in l]))
-    msg = 'Invalid platform: {} (choices: {}).'.format(platform, platforms)
-    raise StopError(msg)
 
 # Build every subdir that has an SConscript in every build environment
 for subdir in filter(os.path.isdir, os.listdir(Dir('.').srcnode().abspath)):
