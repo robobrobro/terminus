@@ -24,6 +24,9 @@ base_env = Environment(
     INSTALL_ROOT = '$BUILD_ROOT/bin',
     INSTALL_DIR = '$INSTALL_ROOT/$OS/$MODE',
 
+    ASFLAGS = [
+        '--fatal-warnings',
+    ],
     CCFLAGS = [
         '-std=c++11',
     ],
@@ -81,6 +84,7 @@ if platform in PLATFORMS['linux']:
             CXX = '${MINGW_PREFIX}g++',
             LD = '${MINGW_PREFIX}ld',
             AR = '${MINGW_PREFIX}ar',
+            AS = '${MINGW_PREFIX}as',
         )
         build_env.Append(
             LINKFLAGS = [
