@@ -2,7 +2,7 @@ from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Defaults import Copy
 from SCons.Util import is_List
-import os, struct, subprocess
+import binascii, os, struct, subprocess
 
 def serialize_resource(target, source, env):
     # Convert source to a list of SCons Files
@@ -18,6 +18,10 @@ def serialize_resource(target, source, env):
     with open(source_path, 'rb') as f:
         data = f.read()
 
+    # Generate IV
+    iv = os.urandom(16) # 128 bits (for AES-256)
+    iv_size = len(iv)
+
     target_dir = os.path.dirname(target[0].abspath)
     encrypted_res_file = os.path.join(target_dir, name + '.encrypted')
     cmd = [
@@ -25,9 +29,12 @@ def serialize_resource(target, source, env):
         'enc',
             '-e',
             '-aes-256-cbc',
-            '-k', env['SECRET_KEY'],
+            '-K', env['SECRET_KEY'],
+            '-iv', binascii.hexlify(iv),
+            '-nosalt',
             '-in', source_path,
             '-out', encrypted_res_file,
+            '-p',
     ]
     subprocess.check_call(cmd)
 
@@ -36,8 +43,23 @@ def serialize_resource(target, source, env):
     size = len(encrypted_data)
 
     # Serialize to target
-    data_format = '<H{}sQ{}s'.format(name_size, size)
-    serialized_data = struct.pack(data_format, name_size, name, size, encrypted_data)
+    # TODO move resource definition to C header
+    # Format:
+    #   H   size of resource name
+    #   s   resource name (# of bytes equal to prev)
+    #   H   size of IV
+    #   s   IV (# of bytes equal to prev)
+    #   Q   size of resource data
+    #   s   resource data (# of bytes equal to prev)
+    data_format = '<H{}sH{}sQ{}s'.format(name_size, iv_size, size)
+    serialized_data = struct.pack(data_format,
+        name_size,
+        name,
+        iv_size,
+        iv,
+        size,
+        encrypted_data
+    )
     with open(target[0].abspath, 'wb') as f:
         f.write(serialized_data)
 

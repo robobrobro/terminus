@@ -1,5 +1,5 @@
 from SCons.Errors import StopError
-import binascii, copy, os, platform
+import binascii, os, platform
 
 # Platform map
 PLATFORMS = {
@@ -41,7 +41,7 @@ base_env = Environment(
     SCONSTRUCT = os.path.join(Dir('.').srcnode().abspath, 'SConstruct'),
 
     # Generate a secret key for symmetric encryption
-    SECRET_KEY = binascii.hexlify(os.urandom(4096)),
+    SECRET_KEY = binascii.hexlify(os.urandom(32)), # 256 bits (for AES-256)
 )
 
 # Add tools to base environment
