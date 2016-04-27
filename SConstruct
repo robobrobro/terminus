@@ -59,9 +59,6 @@ rel_env.Append(
     CCFLAGS = [
         '-O3',
     ],
-    LINKFLAGS = [
-        '-s',
-    ],
 )
 
 # Set base environments
@@ -85,6 +82,7 @@ if platform in PLATFORMS['linux']:
                 '-static',
                 '-static-libgcc',
                 '-static-libstdc++',
+                '-s',
             ],
         )
             
