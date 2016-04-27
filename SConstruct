@@ -42,7 +42,7 @@ base_env = Environment(
 )
 
 # Add tools to base environment
-base_env.Tool('compactor')
+base_env.Tool('build_and_compress')
 base_env.Tool('resource_serializer')
 
 # Build debug and release environments

@@ -2,6 +2,7 @@ from SCons.Builder import Builder
 
 _builder = Builder(
     action = 'upx -9 -o $TARGET $SOURCES',
+    suffix = '$PROGSUFFIX',
 )
 
 def generate(env):
