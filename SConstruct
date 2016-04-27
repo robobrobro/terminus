@@ -76,7 +76,12 @@ if platform in PLATFORMS['linux']:
     # Create build environment for every base build environment
     for env in base_envs:
         # Create new base environment for Linux build systems
-        build_env = env.Clone()
+        build_env = env.Clone(
+            CC = '${MINGW_PREFIX}gcc',
+            CXX = '${MINGW_PREFIX}g++',
+            LD = '${MINGW_PREFIX}ld',
+            AR = '${MINGW_PREFIX}ar',
+        )
         build_env.Append(
             LINKFLAGS = [
                 '-static',
@@ -85,22 +90,22 @@ if platform in PLATFORMS['linux']:
                 '-s',
             ],
         )
-            
+
         # Create Windows build environment
         win_env = build_env.Clone(
             OS = 'windows',
             MINGW_PREFIX = 'x86_64-w64-mingw32-',
-            CC = '${MINGW_PREFIX}gcc',
-            CXX = '${MINGW_PREFIX}g++',
-            LD = '${MINGW_PREFIX}ld',
-            AR = '${MINGW_PREFIX}ar',
             PROGSUFFIX = '.exe',
         )
+        win_env.Append(LIBPATH = '/usr/lib/x86_64-w64-mingw32')
         # Add Windows build environment to build environment list
         build_envs.append(win_env)
 
         # Create Linux build environment
-        lnx_env = build_env.Clone(OS = platform)
+        lnx_env = build_env.Clone(
+            OS = platform,
+            MINGW_PREFIX = 'x86_64-linux-gnu-',
+        )
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
 elif platform in PLATFORMS['mac']:
