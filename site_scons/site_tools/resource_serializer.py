@@ -3,6 +3,34 @@ from SCons.Builder import Builder
 from SCons.Util import is_List
 import os, struct, subprocess
 
+RESOURCE_ASM_IN = {
+    'linux': """
+            .section    .rodata
+            .global     @name@
+            .type       @name@, @object
+            .align      4
+        @name@:
+            .incbin     "@path@"
+            .global     @name@_size
+            .type       @name@_size, @object
+            .align      4
+        @name@_size:
+            .quad       @name@_size - @name@
+    """,
+
+    'mac': """
+            .section    __DATA,__const
+            .global     _@name@
+            .align      4
+        _@name@:
+            .incbin     "@path@"
+            .global     _@name@_size
+            .align      4
+        _@name@_size:
+            .quad       _@name@_size - _@name@
+    """,
+}
+
 def serialize_resource(target, source, env):
     # Convert source to a list of SCons Files
     if not is_List(source):
@@ -58,20 +86,7 @@ def build_resource_blob(env, source, name='terminus_resources'):
     )
 
     # Generate pre-substitution assembly file
-    resource_asm_in_text = """
-        .section    .rodata
-        .global     @name@
-        .type       @name@, @object
-        .align      4
-    @name@:
-        .incbin     "@path@"
-        .global     @name@_size
-        .type       @name@_size, @object
-        .align      4
-    @name@_size:
-        .quad       @name@_size - @name@
-    """
-    env['__RES_ASM_IN'] = resource_asm_in_text
+    env['__RES_ASM_IN'] = RESOURCE_ASM_IN[env['PLATFORM']]
     resource_asm_in = env.Command(
         target = 'resource.s.in',
         source = source,
