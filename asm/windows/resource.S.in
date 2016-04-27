@@ -1,0 +1,15 @@
+    .section    .rodata
+    .global     @name@
+    .def        @name@
+    .scl        2
+    .align      4
+@name@:
+    .incbin     "@path@"
+    .endef
+    .global     @name@_size
+    .def        @name@_size
+    .scl        2
+    .align      4
+@name@_size:
+    .quad       @name@_size - @name@
+    .endef

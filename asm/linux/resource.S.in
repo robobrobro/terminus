@@ -1,0 +1,11 @@
+    .section    .rodata
+    .global     @name@
+    .type       @name@, @object
+    .align      4
+@name@:
+    .incbin     "@path@"
+    .global     @name@_size
+    .type       @name@_size, @object
+    .align      4
+@name@_size:
+    .quad       @name@_size - @name@

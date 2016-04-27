@@ -1,0 +1,9 @@
+    .section    __DATA,__const
+    .global     _@name@
+    .align      4
+_@name@:
+    .incbin     "@path@"
+    .global     _@name@_size
+    .align      4
+_@name@_size:
+    .quad       _@name@_size - _@name@

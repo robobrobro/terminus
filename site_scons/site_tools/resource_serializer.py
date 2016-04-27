@@ -1,35 +1,8 @@
 from SCons.Action import Action
 from SCons.Builder import Builder
+from SCons.Defaults import Copy
 from SCons.Util import is_List
 import os, struct, subprocess
-
-RESOURCE_ASM_IN = {
-    'linux': """
-            .section    .rodata
-            .global     @name@
-            .type       @name@, @object
-            .align      4
-        @name@:
-            .incbin     "@path@"
-            .global     @name@_size
-            .type       @name@_size, @object
-            .align      4
-        @name@_size:
-            .quad       @name@_size - @name@
-    """,
-
-    'mac': """
-            .section    __DATA,__const
-            .global     _@name@
-            .align      4
-        _@name@:
-            .incbin     "@path@"
-            .global     _@name@_size
-            .align      4
-        _@name@_size:
-            .quad       _@name@_size - _@name@
-    """,
-}
 
 def serialize_resource(target, source, env):
     # Convert source to a list of SCons Files
@@ -73,10 +46,6 @@ _resource_serializer = Builder(
     suffix = '.res',
 )
 
-def _write_res_asm_in_file(target, source, env):
-    with open(target[0].abspath, 'wb') as f:
-        f.write(env['__RES_ASM_IN'])
-
 def build_resource_blob(env, source, name='terminus_resources'):
     # Concatenate resources inton a single blob
     blob = env.Command(
@@ -85,12 +54,11 @@ def build_resource_blob(env, source, name='terminus_resources'):
         action = 'cat $SOURCES > ${TARGET}',
     )
 
-    # Generate pre-substitution assembly file
-    env['__RES_ASM_IN'] = RESOURCE_ASM_IN[env['PLATFORM']]
-    resource_asm_in = env.Command(
-        target = 'resource.s.in',
-        source = source,
-        action = _write_res_asm_in_file,
+    # Copy pre-substitution assembly file to build directory
+    pre_subst_asm_file = env.Command(
+        target = name + '.S.in',
+        source = '#asm/$OS/resource.S.in',
+        action = Copy('$TARGET', '$SOURCE'),
     )
 
     # Perform substitution on pre-substitution assembly file
@@ -99,10 +67,14 @@ def build_resource_blob(env, source, name='terminus_resources'):
         '@name@': name,
         '@path@': blob[0].abspath,
     }
-    asm_file = env.Substfile(resource_asm_in, SUBST_DICT = subst_dict)
+    asm_file = env.Substfile(pre_subst_asm_file, SUBST_DICT = subst_dict)
 
     # Compile assembly file, which will incbin the resource blob
-    blob_obj = env.StaticObject(name, asm_file)
+    blob_obj = env.Command(
+        target = name,
+        source = asm_file,
+        action = '$AS $ASFLAGS -o $TARGET $SOURCE',
+    )
     env.Depends(blob_obj, blob)
 
     return blob_obj
