@@ -34,6 +34,7 @@ base_env = Environment(
     # Get platform of the build system
     PLATFORM = [p for p in PLATFORMS if platform in PLATFORMS[p]][0],
 
+    # Get path to the SConstruct
     SCONSTRUCT = os.path.join(Dir('.').srcnode().abspath, 'SConstruct'),
 
     # Generate a secret key for symmetric encryption
