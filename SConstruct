@@ -77,11 +77,11 @@ if platform in PLATFORMS['linux']:
     for env in base_envs:
         # Create new base environment for Linux build systems
         build_env = env.Clone(
-            CC = '${MINGW_PREFIX}gcc',
-            CXX = '${MINGW_PREFIX}g++',
-            LD = '${MINGW_PREFIX}ld',
-            AR = '${MINGW_PREFIX}ar',
-            AS = '${MINGW_PREFIX}as',
+            CC = '${MINGW_PREFIX}-gcc',
+            CXX = '${MINGW_PREFIX}-g++',
+            LD = '${MINGW_PREFIX}-ld',
+            AR = '${MINGW_PREFIX}-ar',
+            AS = '${MINGW_PREFIX}-as',
         )
         build_env.Append(
             LINKFLAGS = [
@@ -95,17 +95,20 @@ if platform in PLATFORMS['linux']:
         # Create Windows build environment
         win_env = build_env.Clone(
             OS = 'windows',
-            MINGW_PREFIX = 'x86_64-w64-mingw32-',
+            MINGW_PREFIX = 'x86_64-w64-mingw32',
             PROGSUFFIX = '.exe',
         )
-        win_env.Append(LIBPATH = '/usr/lib/x86_64-w64-mingw32')
+        win_env.Append(
+            CPPPATH = ['/usr/include/${MINGW_PREFIX}'],
+            LIBPATH = '/usr/lib/${MINGW_PREFIX}',
+        )
         # Add Windows build environment to build environment list
         build_envs.append(win_env)
 
         # Create Linux build environment
         lnx_env = build_env.Clone(
             OS = platform,
-            MINGW_PREFIX = 'x86_64-linux-gnu-',
+            MINGW_PREFIX = 'x86_64-linux-gnu',
         )
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
