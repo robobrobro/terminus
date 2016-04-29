@@ -117,7 +117,11 @@ elif platform in PLATFORMS['mac']:
     for env in base_envs:
         # Create Darwin build environment
         darwin_env = env.Clone(OS = platform)
-        # TODO add Darwin-specific settings
+        darwin_env.Append(
+            LINKFLAGS = [ 
+                '-static-libgcc',
+            ],
+        )
         # Add Darwin build environment to build environment list
         build_envs.append(darwin_env)
 
