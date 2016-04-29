@@ -1,4 +1,4 @@
-def build_and_compress(env, source, target):
+def build_and_compress(env, target, source):
     env.Tool('compactor')
     uncompressed = env.Program('uncompressed', source)
     compressed = env.Compact(
