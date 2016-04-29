@@ -116,8 +116,13 @@ elif platform in PLATFORMS['mac']:
     # Create build environment for every base build environment
     for env in base_envs:
         # Create Darwin build environment
-        darwin_env = env.Clone(OS = platform)
+        darwin_env = env.Clone(
+            OS = platform,
+            CXX = 'g++-5',
+            OPENSSL_VER = '1.0.2g',
+        )
         darwin_env.Append(
+            CPPPATH = ['/usr/local/Cellar/openssl/${OPENSSL_VER}/include/'],
             LINKFLAGS = [ 
                 '-static-libgcc',
             ],
