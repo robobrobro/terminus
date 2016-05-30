@@ -1,0 +1,5 @@
+Import('env')
+
+tester = env.Program('tester', 'src/main.cpp')
+
+Return('tester')
