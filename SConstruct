@@ -61,6 +61,10 @@ rel_env.Append(
     ],
 )
 
+# Build test environment
+test_env = dbg_env.Clone(MODE = 'test')
+test_env.Append(LIBS = ['gtest'])
+
 # Set base environments
 base_envs = [
     dbg_env,
@@ -112,6 +116,7 @@ if platform in PLATFORMS['linux']:
         )
         # Add Linux build environment to build environment list
         build_envs.append(lnx_env)
+
 elif platform in PLATFORMS['mac']:
     # Create build environment for every base build environment
     for env in base_envs:
@@ -130,8 +135,11 @@ elif platform in PLATFORMS['mac']:
         # Add Darwin build environment to build environment list
         build_envs.append(darwin_env)
 
+# Get every subdir
+subdirs = filter(os.path.isdir, os.listdir(Dir('.').srcnode().abspath))
+
 # Build every subdir that has an SConscript in every build environment
-for subdir in filter(os.path.isdir, os.listdir(Dir('.').srcnode().abspath)):
+for subdir in subdirs:
     if 'SConscript' in os.listdir(subdir):
         for env in build_envs:
             objs = SConscript(
@@ -142,3 +150,30 @@ for subdir in filter(os.path.isdir, os.listdir(Dir('.').srcnode().abspath)):
             )
     
             env.Install('$INSTALL_DIR', objs)
+
+# Build every subdir in the test environment and run tests
+for subdir in subdirs:
+    test_subdir = os.path.join(subdir, 'test')
+
+    if not os.path.isdir(test_subdir):
+        continue
+    
+    if not 'SConscript' in os.listdir(test_subdir):
+        continue
+
+    build_dir = test_env.subst('$BUILD_DIR/') + test_subdir
+
+    tester = SConscript(
+        dirs=test_subdir,
+        exports = dict(env=test_env.Clone()),
+        variant_dir = build_dir,
+        duplicate=False,
+    )
+
+    test_results = test_env.Command(
+        target = os.path.join(build_dir, 'results.xml'),
+        source = tester,
+        action = '$SOURCE --gtest_output=xml:$TARGET --gtest_color=yes',
+    )
+
+    test_env.InstallAs('$INSTALL_DIR/' + subdir + '.xml', test_results)
