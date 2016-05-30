@@ -28,7 +28,7 @@ base_env = Environment(
         '--fatal-warnings',
     ],
     CCFLAGS = [
-        '-std=c++11',
+        '-std=c++14',
     ],
     LIBPATH = [
         '$INSTALL_DIR',
