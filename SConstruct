@@ -162,18 +162,20 @@ for subdir in subdirs:
         continue
 
     build_dir = test_env.subst('$BUILD_DIR/') + test_subdir
+    env = test_env.Clone()
+    env.Append(CPPPATH = [Dir(os.path.join(subdir, 'include')).srcnode()])
 
     tester = SConscript(
         dirs=test_subdir,
-        exports = dict(env=test_env.Clone()),
+        exports = dict(env=env),
         variant_dir = build_dir,
         duplicate=False,
     )
 
-    test_results = test_env.Command(
+    test_results = env.Command(
         target = os.path.join(build_dir, 'results.xml'),
         source = tester,
         action = '$SOURCE --gtest_output=xml:$TARGET --gtest_color=yes',
     )
 
-    test_env.InstallAs('$INSTALL_DIR/' + subdir + '.xml', test_results)
+    env.InstallAs('$INSTALL_DIR/' + subdir + '.xml', test_results)
